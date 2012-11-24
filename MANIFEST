@@ -1,0 +1,13 @@
+LICENSE
+MANIFEST
+META.yml
+Makefile.PL
+README
+lib/Business/CPI/Gateway/PagSeguro.pm
+t/01app.t
+t/02gateway.t
+t/data/pagseguro_notification.xml
+t/data/pagseguro_transaction_details.xml
+t/data/pagseguro_transactions.xml
+t/release-pod-coverage.t
+t/release-pod-syntax.t
