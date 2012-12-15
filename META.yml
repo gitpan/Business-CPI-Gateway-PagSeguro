@@ -21,4 +21,4 @@ requires:
   XML::LibXML: 0
 resources:
   repository: git://github.com/andrewalker/p5-business-cpi-gateway-pagseguro.git
-version: 0.1
+version: 0.2
