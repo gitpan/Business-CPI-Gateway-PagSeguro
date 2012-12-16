@@ -11,7 +11,7 @@ use DateTime;
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.2'; # VERSION
+our $VERSION = '0.3'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -122,12 +122,23 @@ sub _parse_transaction {
     my $ref    = $xml->getChildrenByTagName('reference')->string_value;
     my $status = $xml->getChildrenByTagName('status')->string_value;
     my $amount = $xml->getChildrenByTagName('grossAmount')->string_value;
+    my $net    = $xml->getChildrenByTagName('netAmount')->string_value;
+    my $fee    = $xml->getChildrenByTagName('feeAmount')->string_value;
+    my $code   = $xml->getChildrenByTagName('code')->string_value;
+    my $payer  = $xml->getChildrenByTagName('sender')->get_node(1)->getChildrenByTagName('name')->string_value;
 
     return {
-        payment_id => $ref,
-        status     => $self->_status_code_map($status),
-        amount     => $amount,
-        date       => $date,
+        payment_id             => $ref,
+        gateway_transaction_id => $code,
+        status                 => $self->_status_code_map($status),
+        amount                 => $amount,
+        date                   => $date,
+        net_amount             => $net,
+        fee                    => $fee,
+        exchange_rate          => 0,
+        payer => {
+            name => $payer,
+        },
     };
 }
 
@@ -217,7 +228,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.2
+version 0.3
 
 =head1 ATTRIBUTES
 
