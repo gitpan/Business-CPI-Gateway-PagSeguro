@@ -11,7 +11,7 @@ use DateTime;
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.3'; # VERSION
+our $VERSION = '0.4'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -228,7 +228,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.3
+version 0.4
 
 =head1 ATTRIBUTES
 
