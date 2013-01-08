@@ -8,10 +8,11 @@ use LWP::Simple ();
 use URI;
 use URI::QueryParam;
 use DateTime;
+use Locale::Country ();
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.5'; # VERSION
+our $VERSION = '0.6'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -214,6 +215,13 @@ sub get_hidden_inputs {
 
     for (keys %buyer_extra) {
         if (my $value = $buyer->$_) {
+            if ($_ eq 'shippingAddressCountry') {
+                $value = uc(
+                    Locale::Country::country_code2code(
+                        $value, 'alpha-2', 'alpha-3'
+                    )
+                );
+            }
             push @hidden_inputs, ( $buyer_extra{$_} => $value );
         }
     }
@@ -275,7 +283,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.5
+version 0.6
 
 =head1 ATTRIBUTES
 
@@ -325,7 +333,7 @@ Business::CPI modules.
 
 =head1 SPONSORED BY
 
-Aware - L< http://www.aware.com.br >
+L<< Aware | http://www.aware.com.br >>
 
 =head1 SEE ALSO
 

@@ -16,9 +16,10 @@ requires:
   Business::CPI: 0.3
   DateTime: 0
   LWP::Simple: 0
+  Locale::Country: 0
   Moo: 0
   URI: 0
   XML::LibXML: 0
 resources:
   repository: git://github.com/andrewalker/p5-business-cpi-gateway-pagseguro.git
-version: 0.5
+version: 0.6

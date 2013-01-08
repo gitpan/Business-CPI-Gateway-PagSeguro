@@ -23,11 +23,12 @@ my %WriteMakefileArgs = (
     "Business::CPI" => "0.3",
     "DateTime" => 0,
     "LWP::Simple" => 0,
+    "Locale::Country" => 0,
     "Moo" => 0,
     "URI" => 0,
     "XML::LibXML" => 0
   },
-  "VERSION" => "0.5",
+  "VERSION" => "0.6",
   "test" => {
     "TESTS" => "t/*.t"
   }
