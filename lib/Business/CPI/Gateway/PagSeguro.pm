@@ -12,7 +12,7 @@ use Locale::Country ();
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.6'; # VERSION
+our $VERSION = '0.65'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -241,6 +241,7 @@ sub get_hidden_inputs {
     }
 
     if ($extra_amount) {
+        $extra_amount = sprintf( "%.2f", $extra_amount );
         push @hidden_inputs, ( extraAmount => $extra_amount );
     }
 
@@ -283,7 +284,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.6
+version 0.65
 
 =head1 ATTRIBUTES
 

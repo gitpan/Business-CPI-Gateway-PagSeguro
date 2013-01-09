@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-
+use 5.008;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -28,7 +28,7 @@ my %WriteMakefileArgs = (
     "URI" => 0,
     "XML::LibXML" => 0
   },
-  "VERSION" => "0.6",
+  "VERSION" => "0.65",
   "test" => {
     "TESTS" => "t/*.t"
   }
