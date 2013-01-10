@@ -20,7 +20,7 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Business::CPI::Gateway::PagSeguro",
   "PREREQ_PM" => {
-    "Business::CPI" => "0.3",
+    "Business::CPI" => "0.5",
     "DateTime" => 0,
     "LWP::Simple" => 0,
     "Locale::Country" => 0,
@@ -28,7 +28,7 @@ my %WriteMakefileArgs = (
     "URI" => 0,
     "XML::LibXML" => 0
   },
-  "VERSION" => "0.65",
+  "VERSION" => "0.66",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -9,10 +9,11 @@ use URI;
 use URI::QueryParam;
 use DateTime;
 use Locale::Country ();
+use Data::Dumper;
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.65'; # VERSION
+our $VERSION = '0.66'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -70,6 +71,10 @@ sub get_and_parse_notification {
         $self->get_notifications_url($code)
     );
 
+    if ($self->log->is_debug) {
+        $self->log->debug("The notification we received was:\n" . Dumper($xml));
+    }
+
     return $self->_parse_transaction($xml);
 }
 
@@ -77,9 +82,15 @@ sub notify {
     my ($self, $req) = @_;
 
     if ($req->params->{notificationType} eq 'transaction') {
-        return $self->get_and_parse_notification(
-            $req->params->{notificationCode}
-        );
+        my $code = $req->params->{notificationCode};
+
+        $self->log->info("Received notification for $code");
+
+        my $result = $self->get_and_parse_notification( $code );
+
+        if ($self->log->is_debug) {
+            $self->log->debug("The notification we're returning is " . Dumper($result));
+        }
     }
 }
 
@@ -131,7 +142,7 @@ sub _parse_transaction {
     return {
         payment_id             => $ref,
         gateway_transaction_id => $code,
-        status                 => $self->_status_code_map($status),
+        status                 => $self->_interpret_status($status),
         amount                 => $amount,
         date                   => $date,
         net_amount             => $net,
@@ -168,21 +179,28 @@ sub _build_uri {
     return $uri->as_string;
 }
 
-sub _status_code_map {
+sub _interpret_status {
     my ($self, $status) = @_;
 
-    croak qq/No status provided/
-        unless $status;
+    $status = int($status || 0);
 
-    $status = int($status);
+    # 1: aguardando pagamento
+    # 2: em análise
+    # 3: paga
+    # 4: disponível
+    # 5: em disputa
+    # 6: devolvida
+    # 7: cancelada
 
-    my @status_codes;
+    my @status_codes = ('unknown');
     @status_codes[1,2,5] = ('processing') x 3;
-    @status_codes[6,7]   = ('failed') x 2;
     @status_codes[3,4]   = ('completed') x 2;
+    $status_codes[6]     = 'refunded';
+    $status_codes[7]     = 'failed';
 
-    croak qq/Can't understand status code $status/
-        if ($status > 7 || $status < 1);
+    if ($status > 7) {
+        return 'unknown';
+    }
 
     return $status_codes[$status];
 }
@@ -284,7 +302,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.65
+version 0.66
 
 =head1 ATTRIBUTES
 
@@ -334,7 +352,7 @@ Business::CPI modules.
 
 =head1 SPONSORED BY
 
-L<< Aware | http://www.aware.com.br >>
+Aware - L<http://www.aware.com.br>
 
 =head1 SEE ALSO
 
@@ -343,6 +361,10 @@ L<Business::CPI::Gateway::Base>
 =head1 AUTHOR
 
 André Walker <andre@andrewalker.net>
+
+=head1 CONTRIBUTOR
+
+Renato CRON <rentocron@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
