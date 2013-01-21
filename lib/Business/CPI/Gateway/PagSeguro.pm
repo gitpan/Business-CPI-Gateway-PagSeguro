@@ -13,7 +13,7 @@ use Data::Dumper;
 
 extends 'Business::CPI::Gateway::Base';
 
-our $VERSION = '0.66'; # VERSION
+our $VERSION = '0.67'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -91,6 +91,8 @@ sub notify {
         if ($self->log->is_debug) {
             $self->log->debug("The notification we're returning is " . Dumper($result));
         }
+
+        return $result;
     }
 }
 
@@ -302,7 +304,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.66
+version 0.67
 
 =head1 ATTRIBUTES
 
