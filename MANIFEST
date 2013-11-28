@@ -10,5 +10,5 @@ t/02gateway.t
 t/data/pagseguro_notification.xml
 t/data/pagseguro_transaction_details.xml
 t/data/pagseguro_transactions.xml
-t/release-pod-coverage.t
-t/release-pod-syntax.t
+xt/release/pod-coverage.t
+xt/release/pod-syntax.t

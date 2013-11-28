@@ -12,8 +12,9 @@ use Locale::Country ();
 use Data::Dumper;
 
 extends 'Business::CPI::Gateway::Base';
+with 'Business::CPI::Role::Gateway::FormCheckout';
 
-our $VERSION = '0.901'; # VERSION
+our $VERSION = '0.902'; # TRIAL VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -207,87 +208,80 @@ sub _interpret_status {
     return $status_codes[$status];
 }
 
-sub get_hidden_inputs {
-    my ($self, $info) = @_;
+sub _checkout_form_main_map {
+    return {
+        receiver_email => 'receiverEmail',
+        currency       => 'currency',
+        form_encoding  => 'encoding',
+    };
+}
 
-    my $buyer = $info->{buyer};
-    my $cart  = $info->{cart};
+sub _checkout_form_item_map {
+    my ($self, $number) = @_;
 
-    my @hidden_inputs = (
-        receiverEmail => $self->receiver_email,
-        currency      => $self->currency,
-        encoding      => $self->form_encoding,
-        reference     => $info->{payment_id},
-        senderName    => $buyer->name,
-        senderEmail   => $buyer->email,
-    );
+    return {
+        id          => "itemId$number",
+        description => "itemDescription$number",
+        price       => "itemAmount$number",
+        quantity    => "itemQuantity$number",
+        weight      => {
+            name   => "itemWeight$number",
+            coerce => sub { $_[0] * 1000 },
+        },
+        shipping    => "itemShippingCost$number"
+    };
+}
 
-    my %buyer_extra = (
+sub _checkout_form_buyer_map {
+    return {
+        name               => 'senderName',
+        email              => 'senderEmail',
         address_complement => 'shippingAddressComplement',
         address_district   => 'shippingAddressDistrict',
         address_street     => 'shippingAddressStreet',
         address_number     => 'shippingAddressNumber',
         address_city       => 'shippingAddressCity',
         address_state      => 'shippingAddressState',
-        address_country    => 'shippingAddressCountry',
         address_zip_code   => 'shippingAddressPostalCode',
-    );
-
-    for (keys %buyer_extra) {
-        if (my $value = $buyer->$_) {
-            if ($_ eq 'shippingAddressCountry') {
-                $value = uc(
+        address_country    => {
+            name => 'shippingAddressCountry',
+            coerce => sub {
+                uc(
                     Locale::Country::country_code2code(
-                        $value, 'alpha-2', 'alpha-3'
+                        $_[0], 'alpha-2', 'alpha-3'
                     )
-                );
-            }
-            push @hidden_inputs, ( $buyer_extra{$_} => $value );
-        }
-    }
+                )
+            },
+        },
+    };
+}
 
-    my $extra_amount = 0;
+sub _get_hidden_inputs_for_cart {
+    my ($self, $cart) = @_;
 
-    if (my $disc = $cart->discount) {
-        $extra_amount -= $disc;
-    }
+    my $handling = $cart->handling || 0;
+    my $discount = $cart->discount || 0;
+    my $tax      = $cart->tax      || 0;
 
-    if (my $handl = $cart->handling) {
-        $extra_amount += $handl;
-    }
-
-    if (my $tax = $cart->tax) {
-        $extra_amount += $tax;
-    }
+    my $extra_amount = $tax + $handling - $discount;
 
     if ($extra_amount) {
-        $extra_amount = sprintf( "%.2f", $extra_amount );
-        push @hidden_inputs, ( extraAmount => $extra_amount );
+        return ( extraAmount => sprintf( "%.2f", $extra_amount ) );
     }
+    return ();
+}
 
-    my $i = 1;
+sub get_hidden_inputs {
+    my ($self, $info) = @_;
 
-    foreach my $item (@{ $info->{items} }) {
-        push @hidden_inputs,
-          (
-            "itemId$i"          => $item->id,
-            "itemDescription$i" => $item->description,
-            "itemAmount$i"      => $item->price,
-            "itemQuantity$i"    => $item->quantity,
-          );
+    return (
+        reference => $info->{payment_id},
 
-        if (my $weight = $item->weight) {
-            push @hidden_inputs, ( "itemWeight$i" => $weight * 1000 ); # show in grams
-        }
-
-        if (my $ship = $item->shipping) {
-            push @hidden_inputs, ( "itemShippingCost$i" => $ship );
-        }
-
-        $i++;
-    }
-
-    return @hidden_inputs;
+        $self->_get_hidden_inputs_main(),
+        $self->_get_hidden_inputs_for_buyer($info->{buyer}),
+        $self->_get_hidden_inputs_for_items($info->{items}),
+        $self->_get_hidden_inputs_for_cart($info->{cart}),
+    );
 }
 
 1;
@@ -296,7 +290,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -304,7 +298,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.901
+version 0.902
 
 =head1 ATTRIBUTES
 
