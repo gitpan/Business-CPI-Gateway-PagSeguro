@@ -14,7 +14,7 @@ use Data::Dumper;
 extends 'Business::CPI::Gateway::Base';
 with 'Business::CPI::Role::Gateway::FormCheckout';
 
-our $VERSION = '0.902'; # TRIAL VERSION
+our $VERSION = '0.903'; # VERSION
 
 has '+checkout_url' => (
     default => sub { 'https://pagseguro.uol.com.br/v2/checkout/payment.html' },
@@ -170,7 +170,7 @@ sub _build_uri {
 
     $info ||= {};
 
-    $info->{email} = $self->receiver_email;
+    $info->{email} = $self->receiver_id;
     $info->{token} = $self->token;
 
     my $uri = URI->new($self->base_url . $path);
@@ -210,9 +210,9 @@ sub _interpret_status {
 
 sub _checkout_form_main_map {
     return {
-        receiver_email => 'receiverEmail',
-        currency       => 'currency',
-        form_encoding  => 'encoding',
+        receiver_id   => 'receiverEmail',
+        currency      => 'currency',
+        form_encoding => 'encoding',
     };
 }
 
@@ -298,7 +298,7 @@ Business::CPI::Gateway::PagSeguro - Business::CPI's PagSeguro driver
 
 =head1 VERSION
 
-version 0.902
+version 0.903
 
 =head1 ATTRIBUTES
 

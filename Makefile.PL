@@ -20,7 +20,7 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Business::CPI::Gateway::PagSeguro",
   "PREREQ_PM" => {
-    "Business::CPI" => "0.909",
+    "Business::CPI" => "0.910",
     "DateTime" => 0,
     "LWP::Simple" => 0,
     "Locale::Country" => 0,
@@ -29,7 +29,7 @@ my %WriteMakefileArgs = (
     "XML::LibXML" => 0
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "0.902",
+  "VERSION" => "0.903",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -37,7 +37,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Business::CPI" => "0.909",
+  "Business::CPI" => "0.910",
   "DateTime" => 0,
   "LWP::Simple" => 0,
   "Locale::Country" => 0,
